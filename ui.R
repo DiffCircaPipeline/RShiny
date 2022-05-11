@@ -22,7 +22,10 @@ shinyUI(
              # tab for performing joint rhythmicity analysis
              joint_rhythm_ui("joint_rhythm"), #output results for joint_rhythm. You can choose the method and the p-value cutoff. Would produce a summary table for number
              # tab for DR tests
-             dr_analysis_ui("dr_anaylsis"),
+             navbarMenu("Differential Rhythmicity Analysis",
+                        dr_param_ui("dr_param"),
+                        dr_fit_ui("dr_fit"),
+             ),
              # tab for visualization
              navbarMenu("Visualization",
                         plots_scatter_ui("plots_scatter"),
