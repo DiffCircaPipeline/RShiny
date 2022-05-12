@@ -32,18 +32,28 @@ dr_fit_server <- function(input, output, session, globalDB) {
       if(db$studytype == "One"){
         sendErrorMessage(session, "Differential rhythmicity parameter test is not available for one group analysis. ")
       }else{
+        print("DEBUG: in startDRF")
         # print("selected row is: ")
         # print(input$nTOJR_rows_selected)
         intDB <- update_rvDB(intDB, globalDB, type = "match")
+        print("DEBUG: DRF 1")
         # if(is.null(input$nTOJR_rows_selected)){
         #   #sendErrorMessage()
         # }#later
         TOJR.sel = db$TOJR[[input$nTOJR_rows_selected]]
+        print("DEBUG: DRF 2")
         TOJR.sel.load <- readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, ".rds"))
+        print("DEBUG: DRF 3")
+        print(input$DRR_method)
+        print(TOJR.sel.load$TOJR[match(CP.obj$gname_overlap, TOJR.sel.load$TOJR$gname), "TOJR"][1:5])
+        print(input$DRF_nsamp)
+        print(input$DR_parallel.ncores)
         res.DRF <<- DiffCircaPipeline::DCP_DiffR2(CP.obj, method = input$DRR_method, TOJR = TOJR.sel.load$TOJR[match(CP.obj$gname_overlap, TOJR.sel.load$TOJR$gname), "TOJR"],
                                                  nSampling = input$DRF_nsamp, parallel.ncores = input$DR_parallel.ncores)
+        print("DEBUG: DRF 4")
         intDB$TOJR <- updateTOJR(intDB$TOJR, input$nTOJR_rows_selected, "DRF")
         intDB <- updateTOJRsummary(intDB, "DPF")
+        print("DEBUG: DRF 5")
         suppressWarnings(saveX(res.DRF, globalDB, info = paste0("DR_fitness", "_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, ".rds")))
         writeCPoutput(res.DRF, globalDB, "DRF", TOJR.sel)
         # print("2. run CP_DiffFit")
@@ -51,6 +61,7 @@ dr_fit_server <- function(input, output, session, globalDB) {
         # db$printDRF <<- TRUE
         intDB$printDRF <- TRUE
         intDB$trigger <- intDB$trigger + 1
+        print("DEBUG: DRF 6")
       }
     }else{
       showNotification(ui = "Please select a cutoff from TOJR list",

@@ -82,7 +82,7 @@ shinyServer(function(input, output, session) {
     rvDB <- update_rvDB(rvDB, output_dr_fit)
     db <<- update_rvDB(db, rvDB)
     suppressWarnings(saveX(db, db, "db.rds"))
-    # print("DUBUG GLOBAL dr_anaylsis db")
+    print("DUBUG GLOBAL dr_fit db")
     #updateTabsetPanel(session, "mainTabSetPanel", selected = "Read")
     # print(db)
   }, ignoreInit = TRUE)
