@@ -39,7 +39,7 @@ plots_heatmap_ui <- function(id, label = "plots_heatmap"){
                  ),
                  tabPanel("DR fitness result",
                           DT::dataTableOutput(ns("DRFres"))
-                 ),
+                 )
                ),
                checkboxInput(ns("selectAllRows"), label = "Select all", value = FALSE),
                conditionalPanel(

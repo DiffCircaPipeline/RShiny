@@ -29,7 +29,7 @@ if(!("DiffCircaPipeline" %in% installed)){
 library(shiny)
 
 ###############
-library(CircadianPipeline)  # main pkg
+#library(CircadianPipeline)  # main pkg
 
 #Include all global functions
 dir <- "global"

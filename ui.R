@@ -24,7 +24,7 @@ shinyUI(
              # tab for DR tests
              navbarMenu("Differential Rhythmicity Analysis",
                         dr_param_ui("dr_param"),
-                        dr_fit_ui("dr_fit"),
+                        dr_fit_ui("dr_fit")
              ),
              # tab for visualization
              navbarMenu("Visualization",

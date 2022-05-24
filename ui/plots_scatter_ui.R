@@ -34,7 +34,7 @@ plots_scatter_ui <- function(id, label = "plots_scatter"){
                           ),
                  tabPanel("DR fitness result",
                           DT::dataTableOutput(ns("DRFres"))
-                          ),
+                          )
                ),
                h3("The scatter plot"),
                plotOutput(ns("scatterPlot"))
