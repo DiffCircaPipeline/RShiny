@@ -1,7 +1,7 @@
 # This file will be executed prior to app startup to setup the necessary environment
 installed <- installed.packages()[,"Package"]
-if(!("CircadianPipeline" %in% installed)){
-  stop("Please install CircadianPipeline R package first")
+if(!("DiffCircaPipeline" %in% installed)){
+  stop("Please install DiffCircaPipeline R package first")
 }
 
 # #CRAN packages:
