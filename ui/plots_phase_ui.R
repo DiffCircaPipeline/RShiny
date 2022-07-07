@@ -1,7 +1,7 @@
 plots_phase_ui <- function(id, label = "Plots_phase"){
   ns <- NS(id)
 
-  tabPanel("Circos phase plot", value=id,
+  tabPanel("Circos phase difference plot", value=id,
            sidebarLayout(
              sidebarPanel(
                # shinyjs::useShinyjs(),
@@ -164,11 +164,6 @@ plots_phase_ui <- function(id, label = "Plots_phase"){
              #   actionButton(ns('plotDiff'), 'Plot', icon=icon("play"), class="btn-success")
              # ),
 
-             h2("Export to PDF file"),
-             textInput(ns("p_phase_name"), "file name: ", value = ""),
-             numericInput(ns("p_phase_wid"), "plot width: ", value = 8),
-             numericInput(ns("p_phase_hei"), "plot height: ", value = 8),
-             actionButton(ns('savePlots'), 'Export', icon=icon("play"), class="btn-success")
              ),
 
              mainPanel(

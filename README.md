@@ -13,6 +13,8 @@ Check list:
   if (!require("DT")) install.packages('DT')
   if (!require("colourpicker")) install.packages('colourpicker')
   if (!require("rjson")) install.packages('rjson')
+  # if you use R version lower than 4.0.0, you will need to install rjson from archive: 
+  # install.packages("https://cran.r-project.org/src/contrib/Archive/rjson/rjson_0.2.20.tar.gz", repos = NULL)
   
   ```
   - Download the Shiny app to your local directory from this page by clicking Code -> Download ZIP. 

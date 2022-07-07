@@ -42,49 +42,24 @@ shinyServer(function(input, output, session) {
   callModule(plots_phase_server, "plots_phase", rvDB) #mainly phase difference
 
   observeEvent(output_data_input$trigger, {
-    # print("update rvDB in data_input")
     rvDB <- update_rvDB(rvDB, output_data_input)
     db <<- update_rvDB(db, rvDB)
     suppressWarnings(saveX(db, db, "db.rds"))
-    # print("DUBUG GLOBAL data_input db")
-    # print(db)
-    #updateTabsetPanel(session, "mainTabSetPanel", selected = "Read")
   }, ignoreInit = TRUE)
   observeEvent(output_joint_rhythm$trigger, {
-    # print("update rvDB in joint_rhythm")
     rvDB <- update_rvDB(rvDB, output_joint_rhythm)
     db <<- update_rvDB(db, rvDB)
     suppressWarnings(saveX(db, db, "db.rds"))
-    # print("DUBUG GLOBAL joint_rhythm db")
-    #updateTabsetPanel(session, "mainTabSetPanel", selected = "Read")
-    # print(db)
   }, ignoreInit = TRUE)
-  # observeEvent(output_dr_anaylsis$trigger, {
-  #   # print("update rvDB in dr_anaylsis")
-  #   rvDB <- update_rvDB(rvDB, output_dr_anaylsis)
-  #   db <<- update_rvDB(db, rvDB)
-  #   suppressWarnings(saveX(db, db, "db.rds"))
-  #   # print("DUBUG GLOBAL dr_anaylsis db")
-  #   #updateTabsetPanel(session, "mainTabSetPanel", selected = "Read")
-  #   # print(db)
-  # }, ignoreInit = TRUE)
   observeEvent(output_dr_param$trigger, {
-    # print("update rvDB in dr_anaylsis")
     rvDB <- update_rvDB(rvDB, output_dr_param)
     db <<- update_rvDB(db, rvDB)
     suppressWarnings(saveX(db, db, "db.rds"))
-    # print("DUBUG GLOBAL dr_anaylsis db")
-    #updateTabsetPanel(session, "mainTabSetPanel", selected = "Read")
-    # print(db)
   }, ignoreInit = TRUE)
   observeEvent(output_dr_fit$trigger, {
-    # print("update rvDB in dr_anaylsis")
     rvDB <- update_rvDB(rvDB, output_dr_fit)
     db <<- update_rvDB(db, rvDB)
     suppressWarnings(saveX(db, db, "db.rds"))
-    print("DUBUG GLOBAL dr_fit db")
-    #updateTabsetPanel(session, "mainTabSetPanel", selected = "Read")
-    # print(db)
   }, ignoreInit = TRUE)
 
 

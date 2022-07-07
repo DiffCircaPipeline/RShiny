@@ -13,7 +13,8 @@ data_input_server <- function(input, output, session, globalDB) {
                           expr1 = NULL,  time1 = NULL, expr2 = NULL,  time2 = NULL
                           )
   SUMMARY <- reactiveValues(designSummary=data.frame(NULL),
-                            timeSummary=data.frame(NULL))
+                            timeSummary=data.frame(NULL),
+                            nSampleStack = 0)
 
 
   ##########################
@@ -93,10 +94,15 @@ data_input_server <- function(input, output, session, globalDB) {
         intRV$expr1 = read.csv(input$expr1$datapath, row.names = 1)
         intRV$time1 = read.csv(input$time1$datapath)
         X_checkinput(yy = intRV$expr1, tt = intRV$time1)
-        SUMMARY$designSummary = rbind.data.frame(SUMMARY$designSummary,
-                                                 data.frame(group = intDB$gIinfo, nSample = ncol(intRV$expr1), nGene = nrow(intRV$expr1)))
-        SUMMARY$timeSummary = rbind.data.frame(SUMMARY$timeSummary,
-                                               data.frame(group = intDB$gIinfo, time = intRV$time1$time))
+
+        SUMMARY$designSummary = data.frame(group = c(intDB$gIinfo, ifelse2(!is.null(intRV$expr2), intDB$gIIinfo, NULL)),
+                                           nSample = c(ncol(intRV$expr1), ifelse2(!is.null(intRV$expr2), ncol(intRV$expr2), NULL)),
+                                           nGene = c(nrow(intRV$expr1), ifelse2(!is.null(intRV$expr2), nrow(intRV$expr2), NULL)))
+
+        SUMMARY$timeSummary = data.frame(group = c(rep(intDB$gIinfo, nrow(intRV$time1)), ifelse2(!is.null(intRV$time2), rep(intDB$gIIinfo, nrow(intRV$time2)),
+                                                                                            NULL)),
+                                         time = c(intRV$time1$time, intRV$time2$time))
+
       }, session)
 
     }
@@ -110,10 +116,15 @@ data_input_server <- function(input, output, session, globalDB) {
         intRV$expr2 = read.csv(input$expr2$datapath, row.names = 1)
         intRV$time2 = read.csv(input$time2$datapath)
         X_checkinput(yy = intRV$expr2, tt = intRV$time2)
-        SUMMARY$designSummary = rbind.data.frame(SUMMARY$designSummary,
-                                                 data.frame(group = intDB$gIIinfo, nSample = ncol(intRV$expr2), nGene = nrow(intRV$expr2)))
-        SUMMARY$timeSummary = rbind.data.frame(SUMMARY$timeSummary,
-                                               data.frame(group = intDB$gIIinfo, time = intRV$time2$time))
+
+        SUMMARY$designSummary = data.frame(group = c(ifelse2(!is.null(intRV$expr1), intDB$gIinfo, NULL), intDB$gIIinfo),
+                                           nSample = c(ifelse2(!is.null(intRV$expr1), ncol(intRV$expr1), NULL), ncol(intRV$expr2)),
+                                           nGene = c(ifelse2(!is.null(intRV$expr1), nrow(intRV$expr1), NULL), nrow(intRV$expr2)))
+        SUMMARY$timeSummary = data.frame(group = c(ifelse2(!is.null(intRV$time1), rep(intDB$gIinfo, nrow(intRV$time2)),
+                                                           NULL),
+                                                   rep(intDB$gIIinfo, nrow(intRV$time2))),
+                                         time = c(intRV$time1$time, intRV$time2$time))
+
       }, session)
 
     }
@@ -158,10 +169,14 @@ data_input_server <- function(input, output, session, globalDB) {
         intRV$expr1 = read.csv(input$expr0$datapath, row.names = 1)
         intRV$time1 = read.csv(input$time0$datapath)
         X_checkinput(yy = intRV$expr1, tt = intRV$time1)
-        SUMMARY$designSummary = rbind.data.frame(SUMMARY$designSummary,
-                                                 data.frame(nSample = ncol(intRV$expr1), nGene = nrow(intRV$expr1)))
-        SUMMARY$timeSummary = rbind.data.frame(SUMMARY$timeSummary,
-                                               data.frame(time = intRV$time1$time))
+        # print(intRV$expr1)
+        # print(intRV$expr2)
+        # print(intRV$time1)
+        # print(intRV$time2)
+        SUMMARY$designSummary = rbind.data.frame.fixed1(SUMMARY$designSummary,
+                                                 data.frame(nSample = ncol(intRV$expr1), nGene = nrow(intRV$expr1)), 1)
+        SUMMARY$timeSummary = rbind.data.frame.fixed1(SUMMARY$timeSummary,
+                                               data.frame(time = intRV$time1$time), 1:nrow(intRV$time1))
       }, session)
     }
   })

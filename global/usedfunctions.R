@@ -1,10 +1,46 @@
 #data_input_server
-X_checkinput = function(yy, tt){
-  stopifnot("Please make sure the time file contains column 'SampleID' and 'time'. " = all(c("SampleID", "time") %in% colnames(tt)) )
-  stopifnot("The number of samples does not match the expression and time files. " =
-              ncol(yy)==nrow(tt))
-  stopifnot("SampleID in the time file does not match column names in the expression file. " =
-              all(colnames(yy)%in%tt$SampleID)&all(tt$SampleID%in%colnames(yy)))
+# X_checkinput = function(yy, tt){
+#   stopifnot("Please make sure the time file contains column 'SampleID' and 'time'. " = all(c("SampleID", "time") %in% colnames(tt)) )
+#   stopifnot("The number of samples does not match the expression and time files. " =
+#               ncol(yy)==nrow(tt))
+#   stopifnot("SampleID in the time file does not match column names in the expression file. " =
+#               all(colnames(yy)%in%tt$SampleID)&all(tt$SampleID%in%colnames(yy)))
+# }
+
+X_checkinput = function(session, yy, tt){
+  if(!all(c("SampleID", "time") %in% colnames(tt))){
+      showNotification(
+        ui = paste0("Please make sure the time file contains column 'SampleID' and 'time'. "),
+        type = "error",
+        duration = NULL
+      )
+  }
+  if(!ncol(yy)==nrow(tt)){
+      showNotification(
+        ui = paste0("The number of samples does not match the expression and time files. "),
+        type = "error",
+        duration = NULL
+      )
+  }
+  if(!all(colnames(yy)%in%tt$SampleID)&all(tt$SampleID%in%colnames(yy))){
+      showNotification(
+        ui = paste0("SampleID in the time file does not match column names in the expression file. "),
+        type = "error",
+        duration = NULL
+      ) 
+  }
+}
+
+rbind.data.frame.fixed1 = function(df1, df2, idx = NULL){
+  #rbind data to a fixed row. This is to not repeatedly increase rows when upload data in several attempt. 
+  if(is.null(df1)|is.null(idx)){
+    rbind.data.frame(df1, df2) #if df1 is null, we have to do just stack. 
+  }else if(idx[1]>nrow(df1)){
+    rbind.data.frame(df1, df2) 
+  }else{
+    df1[idx, ] <- df2
+    df1 
+  }
 }
 
 validate.study <- function(rv, db) {
@@ -28,8 +64,6 @@ validate.study <- function(rv, db) {
 toX = function(CP.obj0){
   expr1 = CP.obj0$expr1
   time1 = CP.obj0$time1
-  groupIinfo = CP.obj0$groupIinfo
-  groupIIinfo = CP.obj0$groupIIinfo
   stopifnot("Group I: Samples IDs in SampleID column in time input does not match column names of the data input." = all(colnames(expr1)%in%time1$SampleID)&all(time1$SampleID%in%colnames(expr1)))
   #print("load 1")
 
@@ -40,6 +74,9 @@ toX = function(CP.obj0){
   if(!(is.null(CP.obj0$expr2)|is.null(CP.obj0$time2))){
     expr2 = CP.obj0$expr2
     time2 = CP.obj0$time2
+    # groupIinfo = CP.obj0$groupIinfo
+    # groupIIinfo = CP.obj0$groupIIinfo
+
     stopifnot("Group II: Samples IDs in SampleID column in time input does not match column names of the data input." = all(colnames(expr1)%in%time1$SampleID)&all(time1$SampleID%in%colnames(expr1)))
 
     x2 = list(data = expr2,
@@ -48,9 +85,9 @@ toX = function(CP.obj0){
   }else{
     x2 = NULL
   }
-  x = list(x1, x2)
+  x = list(x1 = x1, x2 = x2)
   #print("load 2")
-  names(x) = c(groupIinfo, groupIIinfo)
+#  names(x) = c(groupIinfo, groupIIinfo)
   return(x)
 }
 
@@ -64,8 +101,8 @@ saveX = function(X, study, info = "FormattedData.rds"){
 loadX = function(workding.dir){
   out <- list()
   out$db <- readRDS(paste(workding.dir, "save", "db.rds", sep = "/"))
-  if(out$db$printCP.obj){
-    out$CP.obj = readRDS(paste(workding.dir, "save", "FormattedData.rds", sep = "/"))
+  if(file.exists(paste(workding.dir, "save", "FormattedData.rds", sep = "/"))){
+    out$CP.obj = readRDS(paste(workding.dir, "save", "FormattedData.rds", sep = "/"))    
   }
   if(out$db$printDRP){
     DRPfile = list.files(paste0(workding.dir, "/save"))[grepl("DR_parameter", list.files(paste0(workding.dir, "/save")))] #later: will list all the available results and let choose
@@ -119,49 +156,64 @@ data_input_plot_time = function(df, type = "Two"){
 
 
 # Functions for joint_rhythm ----------------------------------------------
-summary.TOJR = function(a.TOJR, type = "two_FirstTime", method = "Sidak_FS", alpha = 0.05, alpha.FDR = 0.05, alpha.type = "p-value"){ #if type = "two", we summarize TOJR, otherwise it is table(p-value<0.05)
+summary.TOJR = function(x, type = "two_FirstTime", method = "Sidak_FS", amp.cutoff = 0, alpha = 0.05, alpha.FDR = 0.05, alpha.type = "p-value"){ 
+#if type = "two", we summarize TOJR, otherwise it is table(p-value<0.05)
   if(type == "two_FirstTime"){
+    a.TOJR = x$rhythm.joint
     tab.p = data.frame(method = method,
-                       cutoff = paste0("p-value < ", alpha),
+                       cutoff = paste0("p-value < ", alpha, "&A>", amp.cutoff),
                        RhyI = sum(a.TOJR$TOJR=="rhyI"),
                        RhyII = sum(a.TOJR$TOJR=="rhyII"),
                        RhyBoth = sum(a.TOJR$TOJR=="both"),
                        Arrhy = sum(a.TOJR$TOJR=="arrhy"))
     tab.q = data.frame(method = method,
-                       cutoff = paste0("q-value < ", alpha.FDR),
+                       cutoff = paste0("q-value < ", alpha.FDR, "&A>", amp.cutoff),
                        RhyI = sum(a.TOJR$TOJR.FDR=="rhyI"),
                        RhyII = sum(a.TOJR$TOJR.FDR=="rhyII"),
                        RhyBoth = sum(a.TOJR$TOJR.FDR=="both"),
                        Arrhy = sum(a.TOJR$TOJR.FDR=="arrhy"))
     tab = rbind.data.frame(tab.p, tab.q)
   }else if(type == "two_more"){
+    a.TOJR = x$TOJR
     tab = data.frame(method = method,
-                     cutoff = paste0(alpha.type, " < ", alpha),
+                     cutoff = paste0(alpha.type, " < ", alpha, "&A>", amp.cutoff),
                      RhyI = sum(a.TOJR$TOJR=="rhyI"),
                      RhyII = sum(a.TOJR$TOJR=="rhyII"),
                      RhyBoth = sum(a.TOJR$TOJR=="both"),
                      Arrhy = sum(a.TOJR$TOJR=="arrhy"))
   }else if(type == "one"){
-    tab.p = data.frame(cutoff = paste0("p-value < ", alpha),
-                       nRhythmic = sum(a.TOJR$pvalue<alpha))
-    tab.q = data.frame(cutoff = paste0("q-value < ", alpha.FDR),
-                       nRhythmic = sum(a.TOJR$qvalue<alpha))
+    a.Amp = x$rhythm$A
+    a.TOJR = x$rhythm
+    tab.p = data.frame(cutoff = paste0("p-value < ", alpha, "&A>", amp.cutoff),
+                       nRhythmic = sum(a.TOJR$pvalue<=alpha&a.Amp>amp.cutoff), 
+                       nArrhtythmic = sum(!(a.TOJR$pvalue<=alpha&a.Amp>amp.cutoff)))
+    tab.q = data.frame(cutoff = paste0("q-value < ", alpha.FDR, "&A>", amp.cutoff),
+                       nRhythmic = sum(a.TOJR$qvalue<=alpha&a.Amp>amp.cutoff), 
+                       nArrhtythmic = sum(!(a.TOJR$qvalue<=alpha&a.Amp>amp.cutoff)))
+    tab = rbind.data.frame(tab.p, tab.q)
+  }else if(type =="one_more"){
+    alpha.type2 = ifelse(alpha.type=="p-value", "pvalue", "qvalue")
+    tab = data.frame(cutoff = paste0(alpha.type, " < ", alpha, "&A>", amp.cutoff),
+                     nRhythmic = sum(a.TOJR[, alpha.type2]<=alpha&a.Amp>amp.cutoff), 
+                     nArrhtythmic = sum(!(a.TOJR[, alpha.type2]<=alpha&a.Amp>amp.cutoff)))
   }
 }
 
-writeCPoutput <- function(x, db, type = "est2", TOJR.sel){
+writeCPoutput <- function(x, db, type = "est2", TOJR.sel, DRmethod){
   if(type == "est1"){
     write.csv(x$rhythm, paste(db$working.dir, "ParamEst.csv", sep = "/"))
   }else if(type == "est2"){
     write.csv(x[[1]]$rhythm, paste0(db$working.dir, "/ParamEst_", db$gIinfo, ".csv"))
     write.csv(x[[2]]$rhythm, paste0(db$working.dir, "/ParamEst_", db$gIIinfo, ".csv"))
   }else if(type == "DRP"){
-    write.csv(x, paste0(db$working.dir, "/DRparameter_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue,  ".csv"))
+    write.csv(x, paste0(db$working.dir, "/DRparameter_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, "_", DRmethod, ".csv"))
   }else if(type == "DRF"){
-    write.csv(x, paste0(db$working.dir, "/DRfitness_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue,  ".csv"))
-  }else if(type == "TOJR"){
-    print("not yet")
+    write.csv(x, paste0(db$working.dir, "/DRfitness_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, "_", DRmethod, ".csv"))
   }
+}
+
+writeTOJR <- function(x, db, info){
+  write.csv(x, paste0(db$working.dir, "/TOJR_", info, ".csv"))
 }
 
 # dr_analysis
@@ -231,3 +283,16 @@ round2 <- function(df, digits = 3){
   df[, col.class=="numeric"] <- round(df[, col.class=="numeric"], digits)
   return(df) 
 }
+
+#temp functions
+# DCP_PlotDisplay = function(x = DCP_ScatterPlot(x, genes.plot = NULL,
+#                                              Info1 = "gI", Info2 = "gII",
+#                                              filename = NULL, height = 8, width = 8)){
+#   if(length(x[[1]])==1){
+#     return(list(gridExtra::grid.arrange(x[[1]][[1]], x[[2]][[1]], ncol = 2)))
+#   }else{
+#     return(lapply(1:length(x[[1]]), function(a.g){
+#       gridExtra::grid.arrange(x[[1]][[a.g]], x[[2]][[a.g]], ncol = 2)
+#     }))
+#   }
+# }

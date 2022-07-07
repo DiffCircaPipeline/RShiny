@@ -5,7 +5,9 @@ plots_phase_server <- function(input, output, session, globalDB) {
   # ##########################
   # # Reactive Values        #
   # ##########################
-  UI_server_com <- reactiveValues(renderPlotType2 = NULL,
+  UI_server_com <- reactiveValues(RVplotType2 = "circos_diff",
+                                  renderPlotType2 = NULL,
+                                  choose_StudyTwo = FALSE,
                                   output = NULL)
 
   a.plot <- reactiveValues(p = NULL)
@@ -21,56 +23,152 @@ plots_phase_server <- function(input, output, session, globalDB) {
   output$UIStudyOneOrTwo <- renderUI({
     if(globalDB$studytype == "One"){
       output <- tagList()
-      output[[1]] <- h3("Circos phase difference plot is not applicable to one-group study. ")
+      output[[1]] <- h3("Circos phase difference plot is not applicable to one-grouo study. ")
     }else if(globalDB$studytype == "Two"){
       output <- tagList()
-      if(globalDB$dPhase == TRUE){
-        output[[1]] <- h3("Color specification")
-        output[[2]] <- checkboxInput(ns("diffColorCut"), "Different color for genes by differential phase result?", FALSE)
-        output[[3]] <- conditionalPanel(
-          condition = paste0("input['", ns("diffColorCut"), "'] == TRUE "),
-          uiOutput(ns("diffsigCutParamColumns")
-          ),
-          selectInput(ns("diffsigCutFun"), "direction ",
-                      c("<" = "<",
-                        ">" = ">")),
-          numericInput(ns("diffsigCutValue"), "Cutoff value: ", 0.05),
-          colourpicker::colourInput(ns("diffColorPointSig"), "Select color for genes that pass the criterion: ", "#03a1fc"),
-          colourpicker::colourInput(ns("diffColorPointNone"), "Select color for genes that do not pass the criterion: ", "#545454"),
-        )
-        output[[4]] <- h5("More settings: ")
-      }else{
-        output[[1]] <- h5("Choose a TOJR from main panel")
-        output[[2]] <- br()
-        output[[3]] <- h5("More settings: ")
-        output[[4]] <- br()
-      }
-      output[[5]] <- numericInput(ns("diffTimeStart"), "Starting Time: ", -6)
-      output[[6]] <- numericInput(ns("diffTimeBandWidth"), "Band width around 0: ", 4)
-      output[[7]] <- numericInput(ns("diffY"), "Set clock grid jump: ", 4)
-      output[[8]] <- numericInput(ns("diffX"), "Set peak difference grid jump: ", 4)
-      output[[9]] <- numericInput(ns("diffTextSize"), "Set text size: ", 12)
-      output[[10]] <- colourpicker::colourInput(ns("diffColorBand"), "Select color for the band around 0", "darkgreen")
-      output[[11]] <- colourpicker::colourInput(ns("diffColorCon"), "Select color for the peak difference terminals", "grey80")
-      output[[12]] <- colourpicker::colourInput(ns("diffColor0"), "Select color for 0 peak difference reference", "blue")
-      output[[13]] <- selectInput(ns("diffLegendPosition"), "Set legend position",
-                                  c("right" = "right",
-                                    "left" = "left",
-                                    "top" = "top",
-                                    "bottom" = "bottom",
-                                    "no legend" = "none"))
-      output[[14]] <- actionButton(ns('plotDiff'), 'Plot', icon=icon("play"), class="btn-success")
-      output[[15]] <- h2("Export to PDF file")
-      output[[16]] <- textInput(ns("p_phase_name"), "file name: ", value = "")
-      output[[17]] <- numericInput(ns("p_phase_wid"), "plot width: ", value = 8)
-      output[[18]] <- numericInput(ns("p_phase_hei"), "plot height: ", value = 8)
-      output[[19]] <- actionButton(ns('savePlots'), 'Export', icon=icon("play"), class="btn-success")
+      output[[1]] <- selectInput(ns("plotType2"), "Plot type: ",
+                                 c("Peak time difference" = "circos_diff",
+                                   "Peak time linked" = "circos_linked"#,
+                                   # "Peak time histogram" = "circos_hist2"
+                                   ))
+      UI_server_com$choose_StudyTwo <- TRUE
+
     }
     output
   })
 
+  observeEvent(c(UI_server_com$choose_StudyTwo, input$plotType2), {
+    if(UI_server_com$choose_StudyTwo){
+      UI_server_com$RVplotType2 <- input$plotType2
+    }
+  })
 
+  output$UIStudyTwo <- renderUI({
+    if((!is.null(UI_server_com$RVplotType2))&(UI_server_com$choose_StudyTwo)){
+      # print("check warning renderUI")
+      # print(globalDB$studytype)
+      # print(UI_server_com$RVplotType2)
+      # print(UI_server_com$choose_StudyTwo)
+      if(globalDB$studytype=="Two"&UI_server_com$RVplotType2 == "circos_diff"){
+        output <- tagList()
+        if(globalDB$dPhase == TRUE){
+          output[[1]] <- h3("Color specification")
+          output[[2]] <- checkboxInput(ns("diffColorCut"), "Different color for genes by differential phase result?", FALSE)
+          output[[3]] <- conditionalPanel(
+            condition = paste0("input['", ns("diffColorCut"), "'] == TRUE "),
+            uiOutput(ns("diffsigCutParamColumns")
+            ),
+            selectInput(ns("diffsigCutFun"), "direction ",
+                        c("<" = "<",
+                          ">" = ">")),
+            numericInput(ns("diffsigCutValue"), "Cutoff value: ", 0.05),
+            colourpicker::colourInput(ns("diffColorPointSig"), "Select color for genes that pass the criterion: ", "#03a1fc"),
+            colourpicker::colourInput(ns("diffColorPointNone"), "Select color for genes that do not pass the criterion: ", "#545454"),
+          )
+          output[[4]] <- h5("More settings: ")
+        }else{
+          output[[1]] <- h5("Choose TOJR from main panel")
+          output[[2]] <- br()
+          output[[3]] <- h5("More settings: ")
+          output[[4]] <- br()
+        }
+        output[[5]] <- numericInput(ns("diffTimeStart"), "Starting Time: ", -6)
+        output[[6]] <- numericInput(ns("diffTimeBandWidth"), "Band width around 0: ", 4)
+        output[[7]] <- numericInput(ns("diffY"), "Set clock grid jump: ", 4)
+        output[[8]] <- numericInput(ns("diffX"), "Set peak difference grid jump: ", 4)
+        output[[9]] <- numericInput(ns("diffTextSize"), "Set tick size: ", 12)
+        output[[10]] <- colourpicker::colourInput(ns("diffColorBand"), "Select color for the band around 0", "darkgreen")
+        output[[11]] <- colourpicker::colourInput(ns("diffColorCon"), "Select color for the peak difference terminals", "grey80")
+        output[[12]] <- colourpicker::colourInput(ns("diffColor0"), "Select color for 0 peak difference reference", "blue")
+        output[[13]] <- selectInput(ns("diffLegendPosition"), "Set legend position",
+                                    c("right" = "right",
+                                      "left" = "left",
+                                      "top" = "top",
+                                      "bottom" = "bottom",
+                                      "no legend" = "none")
+        )
+        output[[14]] <- actionButton(ns('plotDiff'), 'Plot', icon=icon("play"), class="btn-success")
+        output[[15]] <- h2("Export to PDF file")
+        output[[16]] <- textInput(ns("p_phase_name"), "file name: ", value = "")
+        output[[17]] <- numericInput(ns("p_phase_wid"), "plot width: ", value = 8)
+        output[[18]] <- numericInput(ns("p_phase_hei"), "plot height: ", value = 8)
+        output[[19]] <- actionButton(ns('savePlots'), 'Export', icon=icon("play"), class="btn-success")
+        output
 
+      }else if(globalDB$studytype=="Two"&UI_server_com$RVplotType2 == "circos_linked"){
+        output <- tagList()
+        if(globalDB$dPhase == TRUE){
+          output[[1]] <- h3("Color specification")
+          output[[2]] <- checkboxInput(ns("linkColorCut"), "linkerent color for genes by linkerential phase result?", FALSE)
+          output[[3]] <- conditionalPanel(
+            condition = paste0("input['", ns("linkColorCut"), "'] == TRUE "),
+            uiOutput(ns("linksigCutParamColumns")
+            ),
+            selectInput(ns("linksigCutFun"), "direction ",
+                        c("<" = "<",
+                          ">" = ">")),
+            numericInput(ns("linksigCutValue"), "Cutoff value: ", 0.05),
+            colourpicker::colourInput(ns("linkColorPointSig"), "Select color for genes that pass the criterion: ", "#03a1fc"),
+            colourpicker::colourInput(ns("linkColorPointNone"), "Select color for genes that do not pass the criterion: ", "#545454"),
+          )
+        }else{
+          output[[1]] <- h5("Choose TOJR from main panel")
+          output[[2]] <- br()
+          output[[3]] <- h5("More subtle settings: ")
+        }
+        output[[5]] <- colourpicker::colourInput(ns("linkColor.line.low"), "Select line color for small |peak difference|: ", "#e8f7ff")
+        output[[6]] <- colourpicker::colourInput(ns("linkColor.line.high"), "Select line color for large |peak difference|: ", "#03a1fc")
+        output[[7]] <- h5("More subtle settings: ")
+        output[[8]] <- numericInput(ns("linkTimeStart"), "Starting Time: ", -6)
+        output[[9]] <- numericInput(ns("linkY"), "Set clock grid jump: ", 4)
+        output[[10]] <- numericInput(ns("linkTextSize"), "Set tick size: ", 12)
+        output[[11]] <- selectInput(ns("linkLegendPosition"), "Set legend position",
+                                    c("right" = "right",
+                                      "left" = "left",
+                                      "top" = "top",
+                                      "bottom" = "bottom",
+                                      "no legend" = "none"),
+        )
+        output[[12]] <- actionButton(ns('plotLinked'), 'Plot', icon=icon("play"), class="btn-success")
+        output[[13]] <- h2("Export to PDF file")
+        output[[14]] <- textInput(ns("p_phase_name"), "file name: ", value = "")
+        output[[15]] <- numericInput(ns("p_phase_wid"), "plot width: ", value = 8)
+        output[[16]] <- numericInput(ns("p_phase_hei"), "plot height: ", value = 8)
+        output[[17]] <- actionButton(ns('savePlots'), 'Export', icon=icon("play"), class="btn-success")
+        output
+
+      }else if(globalDB$studytype=="Two"&UI_server_com$RVplotType2 == "circos_hist2"){
+        output <- tagList()
+        output[[1]] <- h3("Make a peak time histogram ")
+        output[[2]] <- h5("Select a TOJR from the right panel: ")
+        output[[3]] <- checkboxInput(ns("hist2BothOnly"), "Only plot RhyBoth genes? ", FALSE)
+        output[[4]] <- checkboxInput(ns("hist2GroupSplit"), "Separate plots for two groups? ", FALSE)
+        output[[5]] <- colourpicker::colourInput(ns("hist2color1"), "Select group I color: ", "#F8766D")
+        output[[6]] <- colourpicker::colourInput(ns("hist2color2"), "Select group II color", "#00BFC4")
+        output[[7]] <- h5("More subtle settings: ")
+        output[[8]] <- numericInput(ns("hist2TimeStart"), "Starting Time: ", -6)
+        output[[9]] <- numericInput(ns("hist2BinWidth"), "Set binwidth: ", 1)
+        output[[10]] <- numericInput(ns("hist2Y"), "Set clock grid jump: ", 4)
+        output[[11]] <- numericInput(ns("hist2TextSize"), "Set tick size: ", 12)
+        output[[12]] <- selectInput(ns("hist2LegendPosition"), "Set legend position",
+                                    c("right" = "right",
+                                      "left" = "left",
+                                      "top" = "top",
+                                      "bottom" = "bottom",
+                                      "no legend" = "none"),
+        )
+        output[[13]] <- actionButton(ns('plotHist2'), 'Plot', icon=icon("play"), class="btn-success")
+        output[[14]] <- h2("Export to PDF file")
+        output[[15]] <- textInput(ns("p_phase_name"), "file name: ", value = "")
+        output[[16]] <- numericInput(ns("p_phase_wid"), "plot width: ", value = 8)
+        output[[17]] <- numericInput(ns("p_phase_hei"), "plot height: ", value = 8)
+        output[[18]] <- actionButton(ns('savePlots'), 'Export', icon=icon("play"), class="btn-success")
+        output
+      }else{
+        br()
+      }
+    }
+  })
 
   # output$nTOJR <- DT::renderDataTable({if(!is.null(db$TOJRsummary)){
   #   DT::datatable(db$TOJRsummary, selection = 'single')
@@ -140,7 +238,7 @@ plots_phase_server <- function(input, output, session, globalDB) {
       a.dPhase <- ifelse2(input$diffColorCut, 
                           ifelse2( #if selected to plot diffColorCut, check if the the selected TOJR has performed diff phase 
                             TOJR.sel[["dPhase"]] == "N", 
-                            "diffColorCut_error", readRDS(paste0(globalDB$working.dir, "/save/DR_parameter", "_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue,  "_Amp", TOJR.sel$ampCut, ".rds"))),
+                            "diffColorCut_error", readRDS(paste0(globalDB$working.dir, "/save/DR_parameter", "_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, ".rds"))),
                           NULL)
       # print(a.dPhase)
 
@@ -155,7 +253,7 @@ plots_phase_server <- function(input, output, session, globalDB) {
       }
 
       TOJR.sel <- globalDB$TOJR[[input$nTOJR_rows_selected]]
-      a.plot$p <- DiffCircaPipeline::DCP_PlotPeakLink(x = CP.obj, TOJR = readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue,  "_Amp", TOJR.sel$ampCut, ".rds"))$TOJR$TOJR,
+      a.plot$p <- DiffCircaPipeline::DCP_PlotPeakLink(x = CP.obj, TOJR = readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, ".rds"))$TOJR$TOJR,
                                                     dPhase = a.dPhase,
                                                     color.cut = ifelse2(input$linkColorCut, ifelse2(db$dPhase, list(param = input$linksigCutParam,
                                                                                                        fun = input$linksigCutFun,
@@ -185,7 +283,8 @@ plots_phase_server <- function(input, output, session, globalDB) {
     }else{
       print("DEBUG: enter plotDiff")
       TOJR.sel <- globalDB$TOJR[[input$nTOJR_rows_selected]]
-      a.TOJR <- readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue,  "_Amp", TOJR.sel$ampCut, ".rds"))$TOJR$TOJR
+      a.TOJR <- readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, ".rds"))$TOJR$TOJR
+      print(paste0("DEBUG TOJR selection ", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue))
       # a.plot$p = DiffCircaPipeline::DCP_PlotPeakDiff(x = CP.obj,
       # print("DEBUG in 2")
       # print(input$diffColorCut)
@@ -284,8 +383,8 @@ plots_phase_server <- function(input, output, session, globalDB) {
   }})
 
   output$PeakPlot <- renderPlot({
-    if(globalDB$studytype == "Two"){
-      # print("DEBUG: renderPlot")
+    if(UI_server_com$choose_StudyTwo){
+      print("DEBUG: renderPlot")
       print(a.plot$p)
     }
   }, height = 600, width = 600)

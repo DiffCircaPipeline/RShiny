@@ -14,30 +14,18 @@ plots_scatter_ui <- function(id, label = "plots_scatter"){
                #   textInput(ns("p_scatter_gIinfo"), "Group II label", value = db$gIIinfo)
                # ),
                h2("Export to PDF file"),
-               textInput(ns("p_scatter_name"), "file name: ", value = "Selected Gene"),
-               numericInput(ns("p_scatter_wid"), "plot width: ", value = 8),
-               numericInput(ns("p_scatter_hei"), "plot height: ", value = 8),
+               textInput(ns("p_scatter_name"), "file name: ", placeholder = "Selected Gene"),
+               numericInput(ns("p_scatter_wid"), "plot width: ", value = 14),
+               numericInput(ns("p_scatter_hei"), "plot height: ", value = 7),
                actionButton(ns('saveScatter'), 'Export', icon=icon("play"), class="btn-success")
              ),
 
              mainPanel(
                h3("Select a gene from: "),
-               tabsetPanel(
-                 tabPanel("Parameter estimates",
-                          fluidRow(width = 12,
-                                   column(6, h5("Group I"), DT::dataTableOutput(ns("Rhythm1"), width = "auto")),
-                                   column(6, h5("Group II"), DT::dataTableOutput(ns("Rhythm2"), width = "auto"))
-                                   )
-                          ),
-                 tabPanel("DR parameter result",
-                          DT::dataTableOutput(ns("DRPres"))
-                          ),
-                 tabPanel("DR fitness result",
-                          DT::dataTableOutput(ns("DRFres"))
-                          )
-               ),
+               uiOutput(ns("SelectGeneForScatter")),
                h3("The scatter plot"),
-               plotOutput(ns("scatterPlot"))
+               uiOutput(ns("scatterPlot_ui"))
+               # plotOutput(ns("scatterPlot"))
              )
            )
   )

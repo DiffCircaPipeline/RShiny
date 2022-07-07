@@ -152,8 +152,9 @@ plots_radar_server <- function(input, output, session, globalDB) {
                                                   axis.text.size = input$hist1TextSize,
                                                   legend.position = input$hist1LegendPosition
     )
-    print("DEBUG print hist1 plot")
+    # print("DEBUG print hist1 plot")
     print(a.plot$p)
+    print("Histogram ploted")
   })
 
   observeEvent(input$plotHist2, {
@@ -162,11 +163,11 @@ plots_radar_server <- function(input, output, session, globalDB) {
                        type = "error",
                        duration = 3)
     }else{
-      print("selected color")
-      print(input$hist2color1)
-      print(input$hist2color2)
+      # print("selected color")
+      # print(input$hist2color1)
+      # print(input$hist2color2)
       TOJR.sel = db$TOJR[[input$nTOJR_rows_selected]]
-      TOJR.sel.load <- readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, ".rds"))
+      TOJR.sel.load <- readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue,  "_Amp", TOJR.sel$ampCut, ".rds"))
       a.plot$p = DiffCircaPipeline::DCP_PlotPeakHist(x = CP.obj, TOJR = TOJR.sel.load$TOJR[match(CP.obj$gname_overlap, TOJR.sel.load$TOJR$gname), "TOJR"],
                                                     RhyBothOnly = input$hist2BothOnly,
                                                     time.start = input$hist2TimeStart,
@@ -179,8 +180,9 @@ plots_radar_server <- function(input, output, session, globalDB) {
                                                     axis.text.size = input$hist2TextSize,
                                                     legend.position = input$hist2LegendPosition
       )
-      print("DEBUG print hist2 plot")
+      # print("DEBUG print hist2 plot")
       print(a.plot$p)
+      print("Histogram ploted")
     }
 
   })
@@ -197,7 +199,7 @@ plots_radar_server <- function(input, output, session, globalDB) {
                                                   axis.text.size = input$radar1TextSize,
                                                   legend.position = input$radar1LegendPosition
     )
-    print("DEBUG print radar1 plot")
+    # print("DEBUG print radar1 plot")
     print(a.plot$p)
   })
 
@@ -207,11 +209,11 @@ plots_radar_server <- function(input, output, session, globalDB) {
                        type = "error",
                        duration = 3)
     }else{
-      print("selected color")
-      print(input$radar2color1)
-      print(input$radar2color2)
+      # print("selected color")
+      # print(input$radar2color1)
+      # print(input$radar2color2)
       TOJR.sel = db$TOJR[[input$nTOJR_rows_selected]]
-      TOJR.sel.load <- readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue, ".rds"))
+      TOJR.sel.load <- readRDS(paste0(globalDB$working.dir,  "/save/TOJR_", TOJR.sel$method, "_", TOJR.sel$cutoffType, "_", TOJR.sel$cutoffValue,  "_Amp", TOJR.sel$ampCut, ".rds"))
       a.plot$p = DiffCircaPipeline::DCP_PlotPeakRadar(x = CP.obj, TOJR = TOJR.sel.load$TOJR[match(CP.obj$gname_overlap, TOJR.sel.load$TOJR$gname), "TOJR"],
                                                     RhyBothOnly = input$radar2BothOnly,
                                                     time.start = input$radar2TimeStart,
@@ -224,8 +226,9 @@ plots_radar_server <- function(input, output, session, globalDB) {
                                                     axis.text.size = input$radar2TextSize,
                                                     legend.position = input$radar2LegendPosition
       )
-      print("DEBUG print radar2 plot")
+      # print("DEBUG print radar2 plot")
       print(a.plot$p)
+      print("Radar plot ploted")
     }
 
   })
@@ -235,6 +238,7 @@ plots_radar_server <- function(input, output, session, globalDB) {
     pdf(paste0(db$working.dir, "/", input$p_phase_name, ".pdf"))
     print(a.plot$p)
     dev.off()
+    print(paste0("Histogram/Radarplot saved to ", db$working.dir))
   })
 
 

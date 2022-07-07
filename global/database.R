@@ -5,8 +5,10 @@ db = list(working.dir = paste(getwd(), DB.dir, sep = "/"),
           TOJR = list(),
           TOJRsummary = data.frame(NULL),
           printDRP = FALSE, printDRF = FALSE,
-          dA = FALSE, dPhase = FALSE, dM = FALSE, upadte = 0)
+          dA = FALSE, dPhase = FALSE, dM = FALSE, upadte = 0,
+          ampCut = 0)
 
+n.scatter.genes <- 1
 # Study class
 # setClass("Study1", representation(
 #   studyName="character",
