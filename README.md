@@ -23,6 +23,10 @@ Check list:
   - Change the "/THE_DIRECTORY_TO_THE_FOLDER_CONTAINING_RShiny" to the directory where you unzip (do not include "/Rshiny-main" in the directory)
   - Click "Run App" on the top right. 
   
+## Instruction 
+
+The detailed user manual could be found here: https://github.com/DiffCircaPipeline/RShiny/blob/main/Others/DiffCircaPipeline_RShiny_Manual.pdf .
+  
 
 
 
