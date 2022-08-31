@@ -21,6 +21,7 @@ plots_radar_ui <- function(id, label = "Plots_radar"){
                #   # condition = paste0("input['", ns("studyType2"), "'] == '2' "),
                #   condition = "input.studyType2 == '2' ",
                #   h3("Select plot type for Two"),
+               #   h3("Select plot type for Two"),
                #   selectInput(ns("plotType2"), "Plot type: ",
                #               c("Peak time difference" = "circos_diff",
                #                 "Peak time linked" = "circos_linked",
@@ -74,7 +75,7 @@ plots_radar_ui <- function(id, label = "Plots_radar"){
              # conditionalPanel(
              #   condition = paste0("input['", ns("plotType2"), "'] == 'circos_hist2' "),
              #   h3("Make a peak time histogram "),
-             #   h5("Select a TOJR from right. "),
+             #   h5("Select a TOJR cutoff from right. "),
              #   checkboxInput(ns("hist2BothOnly"), "Only plot RhyBoth genes? ", FALSE),
              #   checkboxInput(ns("hist2GroupSplit"), "Separate plots for two groups? ", FALSE),
              #   colourpicker::colourInput(ns("hist2color1"), "Select group I color: ", "#F8766D"),
@@ -176,7 +177,7 @@ plots_radar_ui <- function(id, label = "Plots_radar"){
              ),
 
              mainPanel(
-               h3("TOJR list"),
+               h3("Summary of TOJR"),
                DT::dataTableOutput(ns("nTOJR")),
                h3("Peak time plot"),
                plotOutput(ns("PeakPlot"))

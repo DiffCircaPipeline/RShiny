@@ -80,25 +80,25 @@ joint_rhythm_server <- function(input, output, session, globalDB) {
                                   adjustP = TRUE), db, info = paste0("TOJR", "_", input$TOJRmethod, "_", "q-value", "_", input$criticalValueFDR, "_Amp", input$newAmpCut, ".rds")))
       writeTOJR(rhythm.joint.run1.q, db, info = paste0(input$TOJRmethod, "_", "q-value", "_", input$criticalValue, "_Amp", input$newAmpCut))
       TOJRsummary$TOJR <- list(list(method = input$TOJRmethod,
-                                    ampCut = input$ampCut, 
+                                    ampCut = input$ampCut,
                                     cutoffType = "p-value",
                                     cutoffValue = input$criticalValue,
                                     DRParameter = "N",
                                     dA = "N",
-                                    dPhase = "N", 
+                                    dPhase = "N",
                                     dM = "N",
                                     DRFitness = "N"),
                                list(method = input$TOJRmethod,
-                                    ampCut = input$ampCut, 
+                                    ampCut = input$ampCut,
                                     cutoffType = "q-value",
                                     cutoffValue = input$criticalValueFDR,
                                     DRParameter = "N",
                                     dA = "N",
-                                    dPhase = "N", 
+                                    dPhase = "N",
                                     dM = "N",
                                     DRFitness = "N"))
     }
-    TOJRsummary$ampCut <- input$ampCut
+    TOJRsummary$ampCut <- input$ampCut #?
     TOJRsummary$trigger <- TOJRsummary$trigger + 1
   })
 
@@ -121,7 +121,7 @@ joint_rhythm_server <- function(input, output, session, globalDB) {
                        alpha = input$newCriticalValue,
                        adjustP = ifelse(input$newTOJRcutType == "q-value", TRUE, FALSE))
         suppressWarnings(saveX(newTOJR, db, info = paste0("TOJR", "_", input$newTOJRmethod, "_", input$newTOJRcutType, "_", input$newCriticalValue, "_Amp", input$newAmpCut, ".rds")))
-        writeTOJR(newTOJR, db, info = paste0(input$newTOJRmethod, "_", input$newTOJRcutType, "_", input$newCriticalValue, "_Amp", input$newAmpCut))
+        writeTOJR(data.frame(CP.obj$rhythm.joint[, 1:5], TOJR = newTOJR$TOJR$TOJR), db, info = paste0(input$newTOJRmethod, "_", input$newTOJRcutType, "_", input$newCriticalValue, "_Amp", input$newAmpCut))
         print(paste0("Additional joint rhythmicity result saved to ", db$working.dir))
         # db$TOJR <<- append(db$TOJR,
         #                    list(method = input$newTOJRmethod,
@@ -130,10 +130,10 @@ joint_rhythm_server <- function(input, output, session, globalDB) {
         TOJRsummary$TOJR <- append(TOJRsummary$TOJR, list(list(method = input$newTOJRmethod,
                                                                cutoffType = input$newTOJRcutType,
                                                                cutoffValue = input$newCriticalValue,
-                                                               ampCut = input$ampCut, 
+                                                               ampCut = input$ampCut,
                                                                DRParameter = "N",
                                                                dA = "N",
-                                                               dPhase = "N", 
+                                                               dPhase = "N",
                                                                dM = "N",
                                                                DRFitness = "N"))
         )
@@ -147,32 +147,46 @@ joint_rhythm_server <- function(input, output, session, globalDB) {
     }
   })
 
-  output$Rhythm1 <- DT::renderDataTable({
-    if(nrow(TOJRsummary$Rhythm1)>0){
-      DT::datatable({TOJRsummary$Rhythm1})
-    }
-  })
-  output$Rhythm2 <- DT::renderDataTable({
-    if(nrow(TOJRsummary$Rhythm2)>0){
-      DT::datatable({TOJRsummary$Rhythm2})
-    }
-  })
-  output$RhythmEst <- renderUI({
-    if(rvDB$printCP.obj&rbDB$studytype == "Two"){
-      tabPanel("Parameter estimates",
-               fluidRow(width = 12,
-                        column(6, h5(rvDB$gIinfo), DT::dataTableOutput(ns("Rhythm1"), width = "auto")),
-                        column(6, h5(rvDB$gIinfo), DT::dataTableOutput(ns("Rhythm2"), width = "auto"))
-               )
-      )
-    }else if(rvDB$printCP.obj&rbDB$studytype == "One"){
-      tabPanel("Parameter estimates",
-               h4(rvDB$studyname),
-               DT::dataTableOutput(ns("Rhythm1"))
-      )
+  output$Rhythm1 <- DT::renderDataTable({if(globalDB$printCP.obj&globalDB$studytype == "Two"){
+    DT::datatable(round2(CP.obj[[1]]$rhythm, 3), options = list(scrollX = TRUE), rownames = FALSE)
+  }else if(globalDB$printCP.obj&globalDB$studytype == "One"){
+    DT::datatable(round2(CP.obj$rhythm, 3), options = list(scrollX = TRUE), rownames = FALSE)
+  }})
+  output$Rhythm2 <- DT::renderDataTable({if(globalDB$printCP.obj&globalDB$studytype == "Two"){
+    DT::datatable(round2(CP.obj[[2]]$rhythm, 3), options = list(scrollX = TRUE), rownames = FALSE)
+  }})
+
+  output$TOJRandRhythmEst <- renderUI({
+    if(globalDB$printCP.obj&globalDB$studytype == "Two"){
+      output = tagList()
+      output[[1]] <-
+        tabsetPanel(
+          tabPanel("Summary of TOJR", DT::dataTableOutput(ns("TOJRsummary"))),
+          tabPanel("Parameter estimates",
+                   fluidRow(width = 12,
+                            column(6, h5(globalDB$gIinfo), DT::dataTableOutput(ns("Rhythm1"), width = "auto")),
+                            column(6, h5(globalDB$gIIinfo), DT::dataTableOutput(ns("Rhythm2"), width = "auto"))
+                   )
+          )
+        )
+
+    }else if(globalDB$printCP.obj&globalDB$studytype == "One"){
+      output = tagList()
+      output[[1]] <-
+        tabsetPanel(
+          tabPanel("Summary of TOJR", DT::dataTableOutput(ns("TOJRsummary"))),
+          tabPanel("Parameter estimates",
+                   h4(globalDB$studyname),
+                   DT::dataTableOutput(ns("Rhythm1"))
+          )
+        )
+
     }else{
-      p("No estimation has been performed. Please do so in the Joint rhythm module. ")
+      output = tagList()
+      output[[1]] <-
+      p("No estimation has been performed. ")
     }
+    output
   })
 
   # if(nrow(TOJRsummary$Rhythm1)>0){
@@ -195,8 +209,8 @@ joint_rhythm_server <- function(input, output, session, globalDB) {
       output <- tagList()
       output[[1]] <- h3("Set parameters: ");
       #### choose parameters for analysis
-      output[[2]] <- numericInput(ns("rhythmPeriod"), label = "Period", value = 24, min = 1, step = 1);
-      output[[3]] <- checkboxInput(ns("outputCI"), label = "Output confidence interval (CI)?", value = FALSE);
+      output[[2]] <- checkboxInput(ns("outputCI"), label = "Output confidence interval (CI)?", value = FALSE);
+      output[[3]] <- numericInput(ns("rhythmPeriod"), label = "Period", value = 24, min = 1, step = 1);
       #remember to add that if it is single study analysis, the critical value is only used for CI coverage
       output[[4]] <- numericInput(ns("ampCut"), label = "Amplitude cutoff", value = 0, min = 0);
       output[[5]] <- numericInput(ns("criticalValue"), label = "Critical value", value = 0.05, min = 0, max = 1, step = 0.05);
@@ -213,8 +227,8 @@ joint_rhythm_server <- function(input, output, session, globalDB) {
       output <- tagList()
       output[[1]] <- h3("Set parameters: ");
       #### choose parameters for analysis
-      output[[2]] <- numericInput(ns("rhythmPeriod"), label = "Period", value = 24, min = 1, step = 1);
-      output[[3]] <- checkboxInput(ns("outputCI"), label = "Output confidence interval (CI)?", value = FALSE);
+      output[[2]] <- checkboxInput(ns("outputCI"), label = "Output confidence interval (CI)?", value = FALSE);
+      output[[3]] <- numericInput(ns("rhythmPeriod"), label = "Period", value = 24, min = 1, step = 1);
       #remember to add that if it is single study analysis, the critical value is only used for CI coverage
       output[[4]] <- numericInput(ns("ampCut"), label = "Amplitude cutoff", value = 0, min = 0);
       output[[5]] <- numericInput(ns("criticalValue"), label = "Critical value", value = 0.05, min = 0, max = 1, step = 0.05);

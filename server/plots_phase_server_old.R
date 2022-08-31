@@ -140,7 +140,7 @@ plots_phase_server <- function(input, output, session, globalDB) {
       }else if(globalDB$studytype=="Two"&UI_server_com$RVplotType2 == "circos_hist2"){
         output <- tagList()
         output[[1]] <- h3("Make a peak time histogram ")
-        output[[2]] <- h5("Select a TOJR from the right panel: ")
+        output[[2]] <- h5("Select a TOJR cutoff from the right panel: ")
         output[[3]] <- checkboxInput(ns("hist2BothOnly"), "Only plot RhyBoth genes? ", FALSE)
         output[[4]] <- checkboxInput(ns("hist2GroupSplit"), "Separate plots for two groups? ", FALSE)
         output[[5]] <- colourpicker::colourInput(ns("hist2color1"), "Select group I color: ", "#F8766D")
@@ -208,7 +208,7 @@ plots_phase_server <- function(input, output, session, globalDB) {
 
   # observeEvent(input$plotHist2, {
   #   if(is.null(input$nTOJR_rows_selected)){
-  #     stop("Please select a TOJR") #later a pop up message
+  #     stop("Please select a TOJR cutoff") #later a pop up message
   #   }else{
   #     print("selected color")
   #     print(input$hist2color1)
@@ -232,7 +232,7 @@ plots_phase_server <- function(input, output, session, globalDB) {
 
   observeEvent(input$plotLinked, {
     if(is.null(input$nTOJR_rows_selected)){
-      stop("Please select a TOJR") #later a pop up message
+      stop("Please select a TOJR cutoff") #later a pop up message
     }else{
       TOJR.sel <- intDB$TOJR[[input$nTOJR_rows_selected]]
       a.dPhase <- ifelse2(input$diffColorCut, 
@@ -279,7 +279,7 @@ plots_phase_server <- function(input, output, session, globalDB) {
 
   observeEvent(input$plotDiff, {
     if(is.null(input$nTOJR_rows_selected)){
-      stop("Please select a TOJR") #later a pop up message
+      stop("Please select a TOJR cutoff") #later a pop up message
     }else{
       print("DEBUG: enter plotDiff")
       TOJR.sel <- globalDB$TOJR[[input$nTOJR_rows_selected]]

@@ -50,16 +50,17 @@ joint_rhythm_ui <- function(id, label= "joint rhythm"){
              ),
 
              mainPanel(
-               tabsetPanel(
-                 tabPanel("Summary of joint rhythmicity", DT::dataTableOutput(ns("TOJRsummary"))),
-                 # tabPanel("Parameter estimates",
-                 #   h4("Parameter estimates I"),
-                 #   DT::dataTableOutput(ns("Rhythm1")),
-                 #   h4("Parameter estimates II"),
-                 #   DT::dataTableOutput(ns("Rhythm2"))
-                 # )
-                 uiOutput("RhythmEst")
-               )
+               uiOutput(ns("TOJRandRhythmEst"))
+               # tabsetPanel(
+               #   tabPanel("Summary of TOJR", DT::dataTableOutput(ns("TOJRsummary"))),
+               #   tabPanel("Parameter estimates",
+               #     h4("Parameter estimates I"),
+               #     DT::dataTableOutput(ns("Rhythm1")),
+               #     h4("Parameter estimates II"),
+               #     DT::dataTableOutput(ns("Rhythm2"))
+               #   ),
+               #   uiOutput(ns("RhythmEst"))
+               # )
 
              )
            )

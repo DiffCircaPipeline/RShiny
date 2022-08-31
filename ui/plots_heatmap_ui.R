@@ -1,7 +1,7 @@
 plots_heatmap_ui <- function(id, label = "plots_heatmap"){
   ns <- NS(id)
 
-  tabPanel("Make A Heatmap", value=id,
+  tabPanel("Heatmaps", value=id,
            sidebarLayout(
              sidebarPanel(
                # useShinyjs(),

@@ -85,7 +85,7 @@ dr_analysis_server <- function(input, output, session, globalDB) {
         intDB$trigger <- intDB$trigger + 1
       }
     }else{
-      showNotification(ui = "Please select a cutoff from TOJR list",
+      showNotification(ui = "Please select a cutoff from summary of TOJR table",
                        type = "error",
                        duration = 3)
     }
@@ -118,7 +118,7 @@ dr_analysis_server <- function(input, output, session, globalDB) {
         intDB$trigger <- intDB$trigger + 1
       }
     }else{
-      showNotification(ui = "Please select a cutoff from TOJR list",
+      showNotification(ui = "Please select a cutoff from summary of TOJR table",
                        type = "error",
                        duration = 3)
     }

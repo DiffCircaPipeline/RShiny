@@ -12,7 +12,7 @@ dr_param_ui <- function(id, label= "dr parameter") {
              ),
 
              mainPanel(
-               h3("TOJR list"),
+               h3("Summary of TOJR"),
                DT::dataTableOutput(ns("nTOJR")),
                h3("DR parameter result"),
                DT::dataTableOutput(ns("DRP"))

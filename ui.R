@@ -42,7 +42,7 @@ shinyUI(
              #   )
              # ),
              # # Including css and javascripts in head section
-             # tags$head(
+             # ,tags$head(
              #   tags$link(rel = "stylesheet", type = "text/css", href = "css/messenger.css"),
              #   tags$link(rel = "stylesheet", type = "text/css", href = "css/messenger-theme-future.css"),
              #   tags$link(rel = "stylesheet", type = "text/css", href = "css/styles.css"),
@@ -50,5 +50,16 @@ shinyUI(
              #   tags$script(src="js/messenger.min.js"),
              #   tags$script(src="js/message-handler.js")
              # )
+             ,tags$head(
+               tags$style(
+                 HTML(".shiny-notification {
+             position:fixed;
+             top: calc(80%);
+             left: calc(60%);
+             }
+             "
+                 )
+               )
+             )
   )
 )

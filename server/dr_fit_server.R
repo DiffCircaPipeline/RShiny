@@ -62,7 +62,7 @@ dr_fit_server <- function(input, output, session, globalDB) {
         # print("DEBUG: DRF 6")
       }
     }else{
-      showNotification(ui = "Please select a cutoff from TOJR list",
+      showNotification(ui = "Please select a cutoff from summary of TOJR table",
                        type = "error",
                        duration = 3)
     }

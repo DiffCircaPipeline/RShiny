@@ -192,6 +192,8 @@ summary.TOJR = function(x, type = "two_FirstTime", method = "Sidak_FS", amp.cuto
                        nArrhtythmic = sum(!(a.TOJR$qvalue<=alpha&a.Amp>amp.cutoff)))
     tab = rbind.data.frame(tab.p, tab.q)
   }else if(type =="one_more"){
+    a.Amp = x$rhythm$A
+    a.TOJR = x$rhythm
     alpha.type2 = ifelse(alpha.type=="p-value", "pvalue", "qvalue")
     tab = data.frame(cutoff = paste0(alpha.type, " < ", alpha, "&A>", amp.cutoff),
                      nRhythmic = sum(a.TOJR[, alpha.type2]<=alpha&a.Amp>amp.cutoff), 

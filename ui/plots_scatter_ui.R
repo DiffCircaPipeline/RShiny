@@ -1,7 +1,7 @@
 plots_scatter_ui <- function(id, label = "plots_scatter"){
   ns <- NS(id)
 
-  tabPanel("Make A Scatter Plot", value=id,
+  tabPanel("Scatter Plots", value=id,
            sidebarLayout(
              sidebarPanel(
                # useShinyjs(),
@@ -15,8 +15,8 @@ plots_scatter_ui <- function(id, label = "plots_scatter"){
                # ),
                h2("Export to PDF file"),
                textInput(ns("p_scatter_name"), "file name: ", placeholder = "Selected Gene"),
-               numericInput(ns("p_scatter_wid"), "plot width: ", value = 14),
-               numericInput(ns("p_scatter_hei"), "plot height: ", value = 7),
+               numericInput(ns("p_scatter_wid"), "plot width: ", value = 8),
+               numericInput(ns("p_scatter_hei"), "plot height: ", value = 4),
                actionButton(ns('saveScatter'), 'Export', icon=icon("play"), class="btn-success")
              ),
 

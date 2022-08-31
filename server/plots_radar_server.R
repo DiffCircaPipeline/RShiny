@@ -49,7 +49,7 @@ plots_radar_server <- function(input, output, session, globalDB) {
     }else if(globalDB$studytype == "Two"&input$plotType == "hist"){
       output <- tagList()
       output[[1]] <- h3("Make a peak time histogram ")
-      output[[2]] <- h5("Select a TOJR from the right panel: ")
+      output[[2]] <- h5("Select a TOJR cutoff from the right panel: ")
       output[[3]] <- checkboxInput(ns("hist2BothOnly"), "Only plot RhyBoth genes? ", FALSE)
       output[[4]] <- checkboxInput(ns("hist2GroupSplit"), "Separate plots for two groups? ", FALSE)
       output[[5]] <- colourpicker::colourInput(ns("hist2color1"), "Select group I color: ", "#F8766D")
@@ -96,7 +96,7 @@ plots_radar_server <- function(input, output, session, globalDB) {
     }else if(globalDB$studytype == "Two"&input$plotType == "radar"){
       output <- tagList()
       output[[1]] <- h3("Make a radar plot of peak time")
-      output[[2]] <- h5("Select a TOJR from the panel one the right: ")
+      output[[2]] <- h5("Select a TOJR cutoff from the panel on the right: ")
       output[[3]] <- checkboxInput(ns("radar2BothOnly"), "Only plot RhyBoth genes? ", FALSE)
       # output[[4]] <- checkboxInput(ns("radar2GroupSplit"), "Separate plots for two groups? ", FALSE)
       output[[4]] <- colourpicker::colourInput(ns("radar2color1"), "Select group I color: ", "#F8766D")
@@ -159,7 +159,7 @@ plots_radar_server <- function(input, output, session, globalDB) {
 
   observeEvent(input$plotHist2, {
     if(is.null(input$nTOJR_rows_selected)){
-      showNotification(ui = "Please select a cutoff from TOJR list",
+      showNotification(ui = "Please select a cutoff from summary of TOJR table",
                        type = "error",
                        duration = 3)
     }else{
@@ -205,7 +205,7 @@ plots_radar_server <- function(input, output, session, globalDB) {
 
   observeEvent(input$plotRadar2, {
     if(is.null(input$nTOJR_rows_selected)){
-      showNotification(ui = "Please select a cutoff from TOJR list",
+      showNotification(ui = "Please select a cutoff from summary of TOJR table",
                        type = "error",
                        duration = 3)
     }else{
